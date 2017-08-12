@@ -523,6 +523,25 @@ Phaser.Pointer.prototype = {
     },
 
     /**
+    * Called by updateButtons.
+    *
+    * @method Phaser.Pointer#processButtonsUpDown
+    * @private
+    * @param {integer} buttons - {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons MouseEvent#buttons} value.
+    * @param {MouseEvent} event - The DOM event.
+    */
+    processButtonsUpDown: function (buttons, event) {
+
+        this.leftButton.startStop(Phaser.Pointer.LEFT_BUTTON & buttons, event);
+        this.rightButton.startStop(Phaser.Pointer.RIGHT_BUTTON & buttons, event);
+        this.middleButton.startStop(Phaser.Pointer.MIDDLE_BUTTON & buttons, event);
+        this.backButton.startStop(Phaser.Pointer.BACK_BUTTON & buttons, event);
+        this.forwardButton.startStop(Phaser.Pointer.FORWARD_BUTTON & buttons, event);
+        this.eraserButton.startStop(Phaser.Pointer.ERASER_BUTTON & buttons, event);
+
+    },
+
+    /**
     * Called when the event.buttons property changes from zero.
     * Contains a button bitmask.
     *
@@ -535,12 +554,17 @@ Phaser.Pointer.prototype = {
         this.button = event.button;
 
         var down = (event.type.toLowerCase().substr(-4) === 'down');
+        var move = (event.type.toLowerCase().substr(-4) === 'move');
 
         if (event.buttons !== undefined)
         {
             if (down)
             {
                 this.processButtonsDown(event.buttons, event);
+            }
+            else if (move)
+            {
+                this.processButtonsUpDown(event.buttons, event);
             }
             else
             {
@@ -727,7 +751,7 @@ Phaser.Pointer.prototype = {
             this.button = event.button;
         }
 
-        if (fromClick && this.isMouse)
+        if (this.isMouse)
         {
             this.updateButtons(event);
         }
