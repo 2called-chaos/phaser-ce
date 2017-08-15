@@ -439,92 +439,6 @@ Phaser.Pointer.prototype = {
     /**
     * Called by updateButtons.
     *
-    * @method Phaser.Pointer#processButtonsDown
-    * @private
-    * @param {integer} buttons - {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons MouseEvent#buttons} value.
-    * @param {MouseEvent} event - The DOM event.
-    */
-    processButtonsDown: function (buttons, event) {
-
-        //  Note: These are bitwise checks, not booleans
-
-        if (Phaser.Pointer.LEFT_BUTTON & buttons)
-        {
-            this.leftButton.start(event);
-        }
-
-        if (Phaser.Pointer.RIGHT_BUTTON & buttons)
-        {
-            this.rightButton.start(event);
-        }
-
-        if (Phaser.Pointer.MIDDLE_BUTTON & buttons)
-        {
-            this.middleButton.start(event);
-        }
-
-        if (Phaser.Pointer.BACK_BUTTON & buttons)
-        {
-            this.backButton.start(event);
-        }
-
-        if (Phaser.Pointer.FORWARD_BUTTON & buttons)
-        {
-            this.forwardButton.start(event);
-        }
-
-        if (Phaser.Pointer.ERASER_BUTTON & buttons)
-        {
-            this.eraserButton.start(event);
-        }
-
-    },
-
-    /**
-    * Called by updateButtons.
-    *
-    * @method Phaser.Pointer#processButtonsUp
-    * @private
-    * @param {integer} buttons - {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons MouseEvent#buttons} value.
-    * @param {MouseEvent} event - The DOM event.
-    */
-    processButtonsUp: function (buttons, event) {
-
-        if (Phaser.Pointer.LEFT_BUTTON & ~buttons)
-        {
-            this.leftButton.stop(event);
-        }
-
-        if (Phaser.Pointer.RIGHT_BUTTON & ~buttons)
-        {
-            this.rightButton.stop(event);
-        }
-
-        if (Phaser.Pointer.MIDDLE_BUTTON & ~buttons)
-        {
-            this.middleButton.stop(event);
-        }
-
-        if (Phaser.Pointer.BACK_BUTTON & ~buttons)
-        {
-            this.backButton.stop(event);
-        }
-
-        if (Phaser.Pointer.FORWARD_BUTTON & ~buttons)
-        {
-            this.forwardButton.stop(event);
-        }
-
-        if (Phaser.Pointer.ERASER_BUTTON & ~buttons)
-        {
-            this.eraserButton.stop(event);
-        }
-
-    },
-
-    /**
-    * Called by updateButtons.
-    *
     * @method Phaser.Pointer#processButtonsUpDown
     * @private
     * @param {integer} buttons - {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons MouseEvent#buttons} value.
@@ -532,12 +446,48 @@ Phaser.Pointer.prototype = {
     */
     processButtonsUpDown: function (buttons, event) {
 
-        this.leftButton.startStop(Phaser.Pointer.LEFT_BUTTON & buttons, event);
-        this.rightButton.startStop(Phaser.Pointer.RIGHT_BUTTON & buttons, event);
-        this.middleButton.startStop(Phaser.Pointer.MIDDLE_BUTTON & buttons, event);
-        this.backButton.startStop(Phaser.Pointer.BACK_BUTTON & buttons, event);
-        this.forwardButton.startStop(Phaser.Pointer.FORWARD_BUTTON & buttons, event);
-        this.eraserButton.startStop(Phaser.Pointer.ERASER_BUTTON & buttons, event);
+        var down = (event.type.toLowerCase().substr(-4) === 'down');
+
+        if (buttons !== undefined)
+        {
+            //  On OS X (and other devices with trackpads) you have to press CTRL + the pad
+            //  to initiate a right-click event.
+            if (down && buttons === 1 && event.ctrlKey)
+            {
+                buttons = 2;
+            }
+
+            // Note: These are bitwise checks, not booleans
+
+            this.leftButton.startStop(Phaser.Pointer.LEFT_BUTTON & buttons, event);
+            this.rightButton.startStop(Phaser.Pointer.RIGHT_BUTTON & buttons, event);
+            this.middleButton.startStop(Phaser.Pointer.MIDDLE_BUTTON & buttons, event);
+            this.backButton.startStop(Phaser.Pointer.BACK_BUTTON & buttons, event);
+            this.forwardButton.startStop(Phaser.Pointer.FORWARD_BUTTON & buttons, event);
+            this.eraserButton.startStop(Phaser.Pointer.ERASER_BUTTON & buttons, event);
+        }
+        else
+        {
+            //  No buttons property (like Safari on OSX when using a trackpad)
+            if (down)
+            {
+                //  On OS X (and other devices with trackpads) you have to press CTRL + the pad
+                //  to initiate a right-click event.
+                if (event.ctrlKey)
+                {
+                    this.leftButton.start(event);
+                }
+                else
+                {
+                    this.rightButton.start(event);
+                }
+            }
+            else
+            {
+                this.leftButton.stop(event);
+                this.rightButton.stop(event);
+            }
+        }
 
     },
 
@@ -552,48 +502,7 @@ Phaser.Pointer.prototype = {
     updateButtons: function (event) {
 
         this.button = event.button;
-
-        var down = (event.type.toLowerCase().substr(-4) === 'down');
-        var move = (event.type.toLowerCase().substr(-4) === 'move');
-
-        if (event.buttons !== undefined)
-        {
-            if (down)
-            {
-                this.processButtonsDown(event.buttons, event);
-            }
-            else if (move)
-            {
-                this.processButtonsUpDown(event.buttons, event);
-            }
-            else
-            {
-                this.processButtonsUp(event.buttons, event);
-            }
-        }
-        else
-        {
-            //  No buttons property (like Safari on OSX when using a trackpad)
-            if (down)
-            {
-                this.leftButton.start(event);
-            }
-            else
-            {
-                this.leftButton.stop(event);
-                this.rightButton.stop(event);
-            }
-        }
-
-        //  On OS X (and other devices with trackpads) you have to press CTRL + the pad
-        //  to initiate a right-click event, so we'll check for that here ONLY if
-        //  event.buttons = 1 (i.e. they only have a 1 button mouse or trackpad)
-
-        if (event.buttons === 1 && event.ctrlKey && this.leftButton.isDown)
-        {
-            this.leftButton.stop(event);
-            this.rightButton.start(event);
-        }
+        this.processButtonsUpDown(event.buttons, event);
 
         this.isUp = true;
         this.isDown = false;
