@@ -437,6 +437,84 @@ Phaser.Pointer.prototype = {
     },
 
     /**
+    * Called by processButtonsUpDown.
+    *
+    * @method Phaser.Pointer#processButtonsDown
+    * @private
+    * @param {integer} button - {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button MouseEvent#button} value.
+    * @param {MouseEvent} event - The DOM event.
+    */
+    processButtonsDown: function (button, event) {
+
+        //  Note: These are bitwise checks, not booleans
+
+        if (button === Phaser.Mouse.LEFT_BUTTON)
+        {
+            this.leftButton.start(event);
+        }
+
+        if (button === Phaser.Mouse.RIGHT_BUTTON)
+        {
+            this.rightButton.start(event);
+        }
+
+        if (button === Phaser.Mouse.MIDDLE_BUTTON)
+        {
+            this.middleButton.start(event);
+        }
+
+        if (button === Phaser.Mouse.BACK_BUTTON)
+        {
+            this.backButton.start(event);
+        }
+
+        if (button === Phaser.Mouse.FORWARD_BUTTON)
+        {
+            this.forwardButton.start(event);
+        }
+
+    },
+
+    /**
+    * Called by processButtonsUpDown.
+    *
+    * @method Phaser.Pointer#processButtonsUp
+    * @private
+    * @param {integer} button - {@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button MouseEvent#button} value.
+    * @param {MouseEvent} event - The DOM event.
+    */
+    processButtonsUp: function (button, event) {
+
+        //  Note: These are bitwise checks, not booleans
+
+        if (button === Phaser.Mouse.LEFT_BUTTON)
+        {
+            this.leftButton.stop(event);
+        }
+
+        if (button === Phaser.Mouse.RIGHT_BUTTON)
+        {
+            this.rightButton.stop(event);
+        }
+
+        if (button === Phaser.Mouse.MIDDLE_BUTTON)
+        {
+            this.middleButton.stop(event);
+        }
+
+        if (button === Phaser.Mouse.BACK_BUTTON)
+        {
+            this.backButton.stop(event);
+        }
+
+        if (button === Phaser.Mouse.FORWARD_BUTTON)
+        {
+            this.forwardButton.stop(event);
+        }
+
+    },
+
+    /**
     * Called by updateButtons.
     *
     * @method Phaser.Pointer#processButtonsUpDown
@@ -480,12 +558,13 @@ Phaser.Pointer.prototype = {
                 }
                 else
                 {
-                    this.leftButton.startStop(Phaser.Mouse.LEFT_BUTTON === event.button, event);
-                    this.rightButton.startStop(Phaser.Mouse.RIGHT_BUTTON === event.button, event);
-                    this.middleButton.startStop(Phaser.Mouse.MIDDLE_BUTTON === event.button, event);
-                    this.backButton.startStop(Phaser.Mouse.BACK_BUTTON === event.button, event);
-                    this.forwardButton.startStop(Phaser.Mouse.FORWARD_BUTTON === event.button, event);
-                    this.eraserButton.startStop(Phaser.Mouse.ERASER_BUTTON === event.button, event);
+                    if (down) {
+                        this.processButtonsDown(event.button, event);
+                    }
+                    else
+                    {
+                        this.processButtonsUp(event.button, event);
+                    }
                 }
             }
             else
