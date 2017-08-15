@@ -468,24 +468,46 @@ Phaser.Pointer.prototype = {
         }
         else
         {
-            //  No buttons property (like Safari on OSX when using a trackpad)
-            if (down)
+            // No buttons property (like Safari on OSX when using a trackpad)
+            // Attempt to use event.button property or fallback to default
+            if (event.button !== undefined)
             {
                 //  On OS X (and other devices with trackpads) you have to press CTRL + the pad
                 //  to initiate a right-click event.
-                if (event.ctrlKey)
+                if (down && event.ctrlKey && event.button === 0)
                 {
-                    this.leftButton.start(event);
+                    this.rightButton.start(event);
                 }
                 else
                 {
-                    this.rightButton.start(event);
+                    this.leftButton.startStop(Phaser.Mouse.LEFT_BUTTON === event.button, event);
+                    this.rightButton.startStop(Phaser.Mouse.RIGHT_BUTTON === event.button, event);
+                    this.middleButton.startStop(Phaser.Mouse.MIDDLE_BUTTON === event.button, event);
+                    this.backButton.startStop(Phaser.Mouse.BACK_BUTTON === event.button, event);
+                    this.forwardButton.startStop(Phaser.Mouse.FORWARD_BUTTON === event.button, event);
+                    this.eraserButton.startStop(Phaser.Mouse.ERASER_BUTTON === event.button, event);
                 }
             }
             else
             {
-                this.leftButton.stop(event);
-                this.rightButton.stop(event);
+                if (down)
+                {
+                    //  On OS X (and other devices with trackpads) you have to press CTRL + the pad
+                    //  to initiate a right-click event.
+                    if (event.ctrlKey)
+                    {
+                        this.rightButton.start(event);
+                    }
+                    else
+                    {
+                        this.leftButton.start(event);
+                    }
+                }
+                else
+                {
+                    this.leftButton.stop(event);
+                    this.rightButton.stop(event);
+                }
             }
         }
 
