@@ -524,7 +524,9 @@ Phaser.Pointer.prototype = {
     */
     processButtonsUpDown: function (buttons, event) {
 
+        // we need "up" since event can also be a "move" event
         var down = (event.type.toLowerCase().substr(-4) === 'down');
+        var up = (event.type.toLowerCase().substr(-4) === 'up');
 
         if (buttons !== undefined)
         {
@@ -558,10 +560,11 @@ Phaser.Pointer.prototype = {
                 }
                 else
                 {
-                    if (down) {
+                    if (down)
+                    {
                         this.processButtonsDown(event.button, event);
                     }
-                    else
+                    else if (up)
                     {
                         this.processButtonsUp(event.button, event);
                     }
